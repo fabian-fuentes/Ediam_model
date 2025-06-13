@@ -6,9 +6,9 @@ process.harness.data<-function(filename,dir.inputs,experiment.version,dir.harnes
  library(reshape2)
  library(data.table)
 #load experimental design
-  Exp.design<-read.csv(paste(dir.inputs,experiment.version,sep=""))
+  Exp.design <- read.csv(file.path(dir.inputs, experiment.version))
 #load harness data
-  harness.data<-data.table(read.csv(paste(dir.harness,filename,sep="")))
+  harness.data <- data.table(read.csv(file.path(dir.harness, filename)))
 #convert integer values in Exp.design into numeric
   integers<-names(subset(sapply(Exp.design,is.integer),sapply(Exp.design,is.integer)==TRUE))
   Exp.design[,integers]<- lapply(Exp.design[,integers], as.numeric)
@@ -94,7 +94,7 @@ return(harness.data)
 ## This functions reshapes output of model
 ## =======================================================================
 process.prim.data<-function(filename,dir.harness){
-  harness.data<-read.csv(paste(dir.harness,filename,sep=""))
+  harness.data <- read.csv(file.path(dir.harness, filename))
   #First obtain the policy vector
    policy.elements<-c("Policy.Start.Time","Policy.Duration",
                      "ce.tax_N","RD.subsidy_N","RD.subsidy.GF_N","Tec.subsidy_N","Tec.subsidy.GF_N",
@@ -132,7 +132,7 @@ process.prim.data<-function(filename,dir.harness){
 merge.exp.design<-function(dir.inputs,experiment.version,data)
 {
  #load experimental design
-  Exp.design<-read.csv(paste(dir.inputs,experiment.version,sep=""))
+  Exp.design <- read.csv(file.path(dir.inputs, experiment.version))
 #convert integer values in Exp.design into numeric
   integers<-names(subset(sapply(Exp.design,is.integer),sapply(Exp.design,is.integer)==TRUE))
   Exp.design[,integers]<- lapply(Exp.design[,integers], as.numeric)

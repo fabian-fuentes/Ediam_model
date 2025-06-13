@@ -2,19 +2,20 @@
 ## This section runs PRIM accross the experimental results data set
 ## =====================================================================================================
 #cloud
- #root<-"C:\\~TechChange-RDM\\"
- #Number.Cores<-30
+# Set project root dynamically based on the current working directory
+root <- file.path(getwd(), "")
+#Number.Cores<-30
 
 #load libraries
- library(sdtoolkit,lib=paste(root,"Rlibraries\\",sep=""))
- library(data.table,lib=paste(root,"Rlibraries\\",sep=""))
+library(sdtoolkit, lib = file.path(root, "Rlibraries"))
+library(data.table, lib = file.path(root, "Rlibraries"))
 
 #Set parameters
- dir.prim<-paste(root,"RDM Outputs\\",sep="")
+dir.prim <- file.path(root, "RDM Outputs")
  prim.file<-"prim.data_7_06_2015.csv"
 
 #load prim data
- prim.data<-data.table(read.csv(paste(dir.prim,prim.file,sep="")) )
+prim.data <- data.table(read.csv(file.path(dir.prim, prim.file)))
 
 #compute relative variables to be used in prim as inputs
   prim.data[,Relative.A_N:=Are.N/Ace.N]
@@ -65,11 +66,11 @@
                                     by = list( policy.name)])
 
 #Filter data for analysis
- dir.inputs<-paste(root,"RDM Inputs\\",sep="")
+dir.inputs <- file.path(root, "RDM Inputs")
  Policies.File<-"Policies.csv"
  Climate.File<-"Climate.csv"
- Policies<-read.csv(paste(dir.inputs,Policies.File,sep=""))
- Climate<-read.csv(paste(dir.inputs,Climate.File,sep=""))
+Policies <- read.csv(file.path(dir.inputs, Policies.File))
+Climate <- read.csv(file.path(dir.inputs, Climate.File))
 
 #Select prim inputs,
  inputs.vector<-c("Relative.A_N",
@@ -185,7 +186,7 @@ sdprim(prim.inputs,prim$objective, thresh=0.5, threshtype=">",peel_crit = 2,repr
 
 
 #using PCA
- library(psych,lib=paste(root,"Rlibraries\\",sep=""))
+library(psych, lib = file.path(root, "Rlibraries"))
  fit <- principal(prim.inputs, nfactors=4, rotate="varimax",scores=TRUE)
  PCA.factors<-data.frame(fit$scores)
 
@@ -671,5 +672,5 @@ uncertainties<-c("epsilon","rho","Climate.Model","Beta.Delta.Temp")
   robust.mapping<-rbind(robust.mapping.stabilization,robust.mapping.temperature.rise,bad.futures)
   dim(robust.mapping)
 #write final file
-   dir.prim<-paste(root,"RDM Outputs\\",sep="")
-   write.csv(robust.mapping, paste(dir.prim, "robust_mapping.csv", sep=""), row.names=FALSE)
+  dir.prim <- file.path(root, "RDM Outputs")
+  write.csv(robust.mapping, file.path(dir.prim, "robust_mapping.csv"), row.names = FALSE)

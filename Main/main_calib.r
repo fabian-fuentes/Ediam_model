@@ -1,20 +1,21 @@
 #define vector for output
- root<-"C:\\~Model Development\\TechChange-RDM\\"
+## Set project root dynamically based on the current working directory
+root <- file.path(getwd(), "")
 
 #this script has been created to find the optimal value of policies for a future id,
-  library(deSolve,lib=paste(root,"Rlibraries\\",sep=""))
-  library(optimx,lib=paste(root,"Rlibraries\\",sep=""))
-  dir.harness<-paste(root,"RDM Harness\\",sep="")
+  library(deSolve, lib = file.path(root, "Rlibraries"))
+  library(optimx, lib = file.path(root, "Rlibraries"))
+  dir.harness <- file.path(root, "RDM Harness")
 #Source Experimental Design
-  dir.exp<-paste(root,"RDM Inputs\\",sep="")
+  dir.exp <- file.path(root, "RDM Inputs")
   experiment.version<-"Exp.design_calib.csv"
-  Exp.design<-read.csv(paste(dir.exp,experiment.version,sep=""))
+  Exp.design <- read.csv(file.path(dir.exp, experiment.version))
 #run the model once
 
 #Source Model
-  dir.model<-paste(root,"TechChange Model\\",sep="")
+  dir.model <- file.path(root, "TechChange Model")
   model.version<-"InternationalGreenTechChangeModel_9_19_2015_calib.r"
-  source(paste(dir.model,model.version,sep=""))
+  source(file.path(dir.model, model.version))
 
 target.run<-1
 params<-c(
@@ -57,21 +58,21 @@ TechChangeMod(c(0.03,1.0,0.02,0.01,0.05,1.0,0.02,0.5),params)
 ## This section reads the output of simulations and reshapes it into time series split by region,
 ## =====================================================================================================
 #Define directory parameters
- dir.inputs<-paste(root,"RDM Inputs\\",sep="")
- dir.harness<-paste(root,"RDM Harness\\",sep="")
- dir.output<-paste(root,"RDM Outputs\\",sep="")
+ dir.inputs <- file.path(root, "RDM Inputs")
+ dir.harness <- file.path(root, "RDM Harness")
+ dir.output <- file.path(root, "RDM Outputs")
 
 #create vector with file names
  experiment.version<-"Exp.design_calib.csv"
- filenames <- list.files(dir.harness, pattern="*.csv", full.names=FALSE)
+ filenames <- list.files(dir.harness, pattern = "*.csv", full.names = FALSE)
 #source function to process harnessed output data
- source(paste(dir.inputs,"harness_processing.r",sep=""))
+ source(file.path(dir.inputs, "harness_processing.r"))
 #run post-processing in parallel
-  library(data.table,lib=paste(root,"Rlibraries\\",sep=""))
-  library(snow,lib=paste(root,"Rlibraries\\",sep=""))
+  library(data.table, lib = file.path(root, "Rlibraries"))
+  library(snow, lib = file.path(root, "Rlibraries"))
   modelruns<-process.harness.data(filenames[1],dir.inputs,experiment.version,dir.harness)
 #print time series for model
-  write.csv(modelruns, paste(root,"ParameterCalibration\\", "model.runs_calib.csv", sep=""), row.names=FALSE)
+  write.csv(modelruns, file.path(root, "ParameterCalibration", "model.runs_calib.csv"), row.names = FALSE)
 
 
 ## =====================================================================================================
@@ -79,13 +80,13 @@ TechChangeMod(c(0.03,1.0,0.02,0.01,0.05,1.0,0.02,0.5),params)
 ## =====================================================================================================
 
 #this script puts together the data for the historic calibration
-  dir.output<-paste(root,"RDM Outputs\\",sep="")
-  dir.historic<-paste(root,"ParameterCalibration\\",sep="")
+  dir.output <- file.path(root, "RDM Outputs")
+  dir.historic <- file.path(root, "ParameterCalibration")
 
 #read historic data
-  historic<-read.csv(paste(dir.historic,"historic_energy_both_regions _v1.csv",sep=""))
+  historic <- read.csv(file.path(dir.historic, "historic_energy_both_regions _v1.csv"))
 #read simulated data
-  data<-read.csv(paste(dir.historic,"model.runs_calib.csv",sep=""))
+  data <- read.csv(file.path(dir.historic, "model.runs_calib.csv"))
   data<-data[,c("Run.ID","time","Region","Y","Yce","Yre","Ace","Are","L","policy.name",
                 "epsilon","rho","alfa","Eta.re","Eta.ce","Gamma.re","Gamma.ce","Nu.re","Nu.ce",
    				"k.re","k.ce","labor.growth","size.factor")]
@@ -97,4 +98,4 @@ TechChangeMod(c(0.03,1.0,0.02,0.01,0.05,1.0,0.02,0.5),params)
  data.historic$Region<-gsub("S","NONOECD",data.historic$Region)
  data.historic$Run.ID<-data.historic$Run.ID+1
  data<-rbind(data,data.historic)
-  write.csv(data, paste(dir.output, "historic_calib.csv", sep=""), row.names=FALSE)
+   write.csv(data, file.path(dir.output, "historic_calib.csv"), row.names = FALSE)
