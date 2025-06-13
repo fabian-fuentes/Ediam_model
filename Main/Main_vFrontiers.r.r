@@ -1,41 +1,42 @@
 #cloud
- root<-"C:\\~TechChange-RDM\\"
+## Set project root dynamically based on the current working directory
+root <- file.path(getwd(), "")
  Number.Cores<-32
 
 ## =================================================================================================================================================
 ## This section creates the Experimental Design Based on Input Tables
 ## =================================================================================================================================================
-  dir.exp.inputs<-paste(root,"RDM Inputs\\",sep="")
+  dir.exp.inputs <- file.path(root, "RDM Inputs")
   Limits.File<-"Limits.csv"
   Policies.File<-"Policies.csv"
   Climate.File<-"Climate.csv"
   sample.size<-300
   Policy.Switch<-TRUE
   Climate.Switch<-TRUE
-  source(paste(dir.exp.inputs,"create_experiment_function.r",sep=""))
+  source(file.path(dir.exp.inputs, "create_experiment_function.r"))
   Exp.design<-exp.design.table(dir.exp.inputs,Limits.File,sample.size,Policies.File,Policy.Switch,Climate.File,Climate.Switch)
-  write.csv(Exp.design, paste(dir.exp.inputs, "Exp.design.csv", sep=""), row.names=FALSE)
+  write.csv(Exp.design, file.path(dir.exp.inputs, "Exp.design.csv"), row.names = FALSE)
 
 ## ==================================================================================================================================================
 ## This section runs the model across the experimental design and prints an output file for each run
 ## ==================================================================================================================================================
 #Source Model
-  dir.model<-paste(root,"TechChange Model\\",sep="")
+  dir.model <- file.path(root, "TechChange Model")
   model.version<-"InternationalGreenTechChangeModel_10_22_2015.r"
-  source(paste(dir.model,model.version,sep=""))
+  source(file.path(dir.model, model.version))
 #Source Experimental Design
-  dir.exp<-paste(root,"RDM Inputs\\",sep="")
+  dir.exp <- file.path(root, "RDM Inputs")
   experiment.version<-"Exp.design.csv"
-  Exp.design<-read.csv(paste(dir.exp,experiment.version,sep=""))
+  Exp.design <- read.csv(file.path(dir.exp, experiment.version))
 #Define directory to print output files
-  dir.harness<-paste(root,"RDM Harness\\",sep="")
+  dir.harness <- file.path(root, "RDM Harness")
 #Clean output folder
-  do.call(file.remove,list(paste(dir.harness,list.files(dir.harness, pattern="*.csv", full.names=FALSE),sep="")))
+  do.call(file.remove, list(file.path(dir.harness, list.files(dir.harness, pattern = "*.csv", full.names = FALSE))))
 #Set up parallel environment
 #Run Model in Parallel
-  library(snow,lib=paste(root,"Rlibraries\\",sep=""))
-  library(deSolve,lib=paste(root,"Rlibraries\\",sep=""))
-  library(optimx,lib=paste(root,"Rlibraries\\",sep=""))
+  library(snow, lib = file.path(root, "Rlibraries"))
+  library(deSolve, lib = file.path(root, "Rlibraries"))
+  library(optimx, lib = file.path(root, "Rlibraries"))
   nCore<-Number.Cores
   cl <- makeSOCKcluster(names = rep('localhost',nCore))
   global.elements<-list("Exp.design","TechChangeMod","dir.harness","dede","lagderiv","lagvalue","optimx") # dede, lagderiv are functions od deSolve
@@ -158,23 +159,25 @@ if (x['policy.name']=="FWA")
 ## =====================================================================================================
   Number.Cores<-4
  #Define directory parameters
-  dir.inputs<-paste(root,"RDM Inputs\\",sep="")
-  dir.harness<-paste(root,"RDM Harness\\",sep="")
-  dir.output<-paste(root,"RDM Outputs\\",sep="")
+  dir.inputs <- file.path(root, "RDM Inputs")
+  dir.harness <- file.path(root, "RDM Harness")
+  dir.output <- file.path(root, "RDM Outputs")
  #load needed libraries
-  library(reshape2,lib= paste(root,"Rlibraries\\",sep=""))
-  library(data.table,lib=paste(root,"Rlibraries\\",sep=""))
-  library(snow,lib=paste(root,"Rlibraries\\",sep=""))
+  library(reshape2, lib = file.path(root, "Rlibraries"))
+  library(data.table, lib = file.path(root, "Rlibraries"))
+  library(snow, lib = file.path(root, "Rlibraries"))
 #create vector with file names
-  filenames <- list.files(dir.harness, pattern="*.csv", full.names=FALSE)
+  filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
 #source function to process harnessed output data
-  source(paste(dir.inputs,"harness_processing.r",sep=""))
+  source(file.path(dir.inputs, "harness_processing.r"))
 #run post-processing in parallel
   nCore<-Number.Cores
   cl <- makeSOCKcluster(names = rep('localhost',nCore))
   global.elements<-list("dir.harness","process.prim.data","data.table")
   clusterExport(cl,global.elements,envir=environment())
-  prim.data <- parLapply(cl,filenames, function(x){data.table(process.prim.data(x,dir.harness))} )
+  prim.data <- parLapply(cl, filenames, function(x) {
+    data.table(process.prim.data(x, dir.harness))
+  })
   stopCluster(cl)
   prim.data<-rbindlist(prim.data)
 #merge data with experimental design
@@ -194,28 +197,28 @@ if (x['policy.name']=="FWA")
   prim.data$Z.Relative.Nu<-scale(prim.data$Z.Relative.Nu, center=TRUE, scale=TRUE)
   prim.data$Z.epsilon<-scale(prim.data$epsilon, center=TRUE, scale=TRUE)
 
-  #write.csv(prim.data, paste(dir.output, "prim.data_7_06_2015.csv", sep=""), row.names=FALSE)
-  write.csv(prim.data, paste(dir.output, "prim.data_extras_seminar.csv", sep=""), row.names=FALSE)
+  #write.csv(prim.data, file.path(dir.output, "prim.data_7_06_2015.csv"), row.names = FALSE)
+  write.csv(prim.data, file.path(dir.output, "prim.data_extras_seminar.csv"), row.names = FALSE)
 
 ## =====================================================================================================
 ## This section reads the output of simulations and reshapes it into time series split by region,
 ## =====================================================================================================
 Number.Cores<-18
 #Define directory parameters
- dir.inputs<-paste(root,"RDM Inputs\\",sep="")
- dir.harness<-paste(root,"RDM Harness\\",sep="")
- dir.output<-paste(root,"RDM Outputs\\",sep="")
+ dir.inputs <- file.path(root, "RDM Inputs")
+ dir.harness <- file.path(root, "RDM Harness")
+ dir.output <- file.path(root, "RDM Outputs")
 
 #crate vector with file names
  experiment.version<-"Exp.design.csv"
  #experiment.version<-"Exp.design_with_control_runs.csv"
  #experiment.version<-"Exp.design_defense_seminar_extras.csv"
- filenames <- list.files(dir.harness, pattern="*.csv", full.names=FALSE)
+ filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
 #source function to process harnessed output data
- source(paste(dir.inputs,"harness_processing.r",sep=""))
+  source(file.path(dir.inputs, "harness_processing.r"))
 #run post-processing in parallel
-  library(data.table,lib=paste(root,"Rlibraries\\",sep=""))
-  library(snow,lib=paste(root,"Rlibraries\\",sep=""))
+  library(data.table, lib = file.path(root, "Rlibraries"))
+  library(snow, lib = file.path(root, "Rlibraries"))
   nCore<-Number.Cores
   cl <- makeSOCKcluster(names = rep('localhost',nCore))
   global.elements<-list("dir.inputs","experiment.version","dir.harness","process.harness.data")
@@ -224,4 +227,4 @@ Number.Cores<-18
   stopCluster(cl)
   modelruns<-rbindlist(modelruns)
 #print time series for model
-  write.csv(modelruns, paste(dir.output, "model.runs_7_09_2015.csv", sep=""), row.names=FALSE)
+  write.csv(modelruns, file.path(dir.output, "model.runs_7_09_2015.csv"), row.names = FALSE)

@@ -1,7 +1,8 @@
 #calibrate climate scenarios
 #read the data
- dir.climate.data<-"C:\\~Model Development\\TechChange-RDM\\ClimateDataCalibration\\"
- climate.data<-read.csv(paste(dir.climate.data,"AllGCMs.csv",sep=""))
+## Use project-relative path for climate calibration data
+dir.climate.data <- file.path(getwd(), "ClimateDataCalibration")
+climate.data <- read.csv(file.path(dir.climate.data, "AllGCMs.csv"))
 
 #PART1: CALIBRATION OF DELTA TEMP VS LOG CO2 FUNCTION
 climate.models<-unique(climate.data$Climate.Model)
@@ -32,18 +33,19 @@ delta.temp.disater<-7.5 #[degrees Celsius] increase in average global temperatur
    result$CO2.Disaster<-result$CO2.base*exp(delta.temp.disater/result$Beta.Delta.Temp)
    result$Delta.Temp.Disaster<-delta.temp.disater
 #print climate model parameters
-  write.csv(result, paste(dir.climate.data, "Climate_ScenariosTable1.csv", sep=""), row.names=FALSE)
+write.csv(result, file.path(dir.climate.data, "Climate_ScenariosTable1.csv"), row.names = FALSE)
 
 
 #PART2: CALIBRATION OF S EQUATION
 #read the data
- dir.climate.data<-"C:\\Users\\emolina\\Edmundo-RAND\\Projects\\Dissertation\\Model Development\\TechChange-RDM\\ClimateDataCalibration\\"
- climate.data<-read.csv(paste(dir.climate.data,"AllGCMs.csv",sep=""))
+## Reset path to the climate calibration data using the project directory
+dir.climate.data <- file.path(getwd(), "ClimateDataCalibration")
+climate.data <- read.csv(file.path(dir.climate.data, "AllGCMs.csv"))
 #The historical record across RCPs is the same, thus we aggregate the models at RCP level
  climate.data<-aggregate(climate.data[,"co2.ppm"],list(Climate.Model=climate.data$Climate.Model,Year=climate.data$Year),mean)
  colnames(climate.data)[ncol(climate.data)]<-"co2.ppm"
 #load initial scenario parameters
- climate.param.ini<-read.csv(paste(dir.climate.data,"Climate_ScenariosTable1.csv",sep=""))
+climate.param.ini <- read.csv(file.path(dir.climate.data, "Climate_ScenariosTable1.csv"))
  climate.param.ini<-climate.param.ini[,c("Climate.Model","CO2.Disaster")]
 #merge CO2 Disaster with raw data
   dim(climate.data)
@@ -58,7 +60,7 @@ delta.temp.disater<-7.5 #[degrees Celsius] increase in average global temperatur
   climate.models<-unique(climate.data$Climate.Model)
   length(climate.models)
 #load data of world consumption of fossil fuels
-  fossil.fuel<-read.csv(paste(dir.climate.data,"FossilFuelConsumption.csv",sep=""))
+fossil.fuel <- read.csv(file.path(dir.climate.data, "FossilFuelConsumption.csv"))
   fossil.fuel<-fossil.fuel[,c("Year","Fossil.Fuels.Consumption")] # Quadrillion Btu
 
 #loop across models
@@ -100,8 +102,8 @@ for (j in 2:length(climate.models))
   }
 
 #Create a table with parameters for all climate models
- climate.param.ini<-read.csv(paste(dir.climate.data,"Climate_ScenariosTable1.csv",sep=""))
+climate.param.ini <- read.csv(file.path(dir.climate.data, "Climate_ScenariosTable1.csv"))
  climate.param.ini<-climate.param.ini[,c("Climate.Model","Beta.Delta.Temp","CO2.base","CO2.Disaster","Delta.Temp.Disaster")]
 #merge
  climate.param<-merge(climate.param.ini,s.parameters,by="Climate.Model")
- write.csv(climate.param, paste(dir.climate.data, "Climate.csv", sep=""), row.names=FALSE)
+write.csv(climate.param, file.path(dir.climate.data, "Climate.csv"), row.names = FALSE)
