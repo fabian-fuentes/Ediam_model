@@ -1,83 +1,105 @@
-#cloud
+rm(list=ls()) #clear workspace
+
+#################################
+# This script runs the International Green Tech Change Model in parallel across a set of experimental design scenarios
+# By: Fabian Fuentes, July 2015
+# Version: 1.0
+###############################
+
+#load libraries
+
+# If necessary, install packages
+#install.packages(c('parallel', 'snow', 'deSolve', 'optimx', 'reshape2', 'data.table'))
+library(parallel)
+library(snow)
+library(deSolve)
+library(optimx)
+library(reshape2)
+library(data.table)
+
 ## Set project root dynamically based on the current working directory
 root <- file.path(getwd(), "")
- Number.Cores<-32
 
-## =================================================================================================================================================
-## This section creates the Experimental Design Based on Input Tables
-## =================================================================================================================================================
-  dir.exp.inputs <- file.path(root, "RDM Inputs")
-  Limits.File<-"Limits.csv"
-  Policies.File<-"Policies.csv"
-  Climate.File<-"Climate.csv"
-  sample.size<-300
-  Policy.Switch<-TRUE
-  Climate.Switch<-TRUE
-  source(file.path(dir.exp.inputs, "create_experiment_function.r"))
-  Exp.design<-exp.design.table(dir.exp.inputs,Limits.File,sample.size,Policies.File,Policy.Switch,Climate.File,Climate.Switch)
-  write.csv(Exp.design, file.path(dir.exp.inputs, "Exp.design.csv"), row.names = FALSE)
+# Set number of cores for parallel processing
+Number.Cores <- parallel::detectCores()
 
 ## ==================================================================================================================================================
 ## This section runs the model across the experimental design and prints an output file for each run
 ## ==================================================================================================================================================
+
 #Source Model
-  dir.model <- file.path(root, "TechChange Model")
-  model.version<-"InternationalGreenTechChangeModel_10_22_2015.r"
-  source(file.path(dir.model, model.version))
+dir.model <- file.path(root, "model")
+model.version<-"InternationalGreenTechChangeModel_10_22_2015.r"
+source(file.path(dir.model, model.version))
+  
 #Source Experimental Design
-  dir.exp <- file.path(root, "RDM Inputs")
-  experiment.version<-"Exp.design.csv"
-  Exp.design <- read.csv(file.path(dir.exp, experiment.version))
+dir.exp.inputs <- file.path(root, "RDM Inputs//")
+Exp.design <- read.csv(file.path(dir.exp.inputs, "Exp.design.csv"))
+
+table(Exp.design$policy.name)
+
+# Select 10 observations for each unique value of policy.name
+Exp.design <- do.call(rbind, lapply(split(Exp.design, Exp.design$policy.name), function(df) head(df, 10)))
+
+#check policy names
+table(Exp.design$policy.name)
+
+
 #Define directory to print output files
-  dir.harness <- file.path(root, "RDM Harness")
+dir.harness <- file.path(root, "RDM Harness//")
+
 #Clean output folder
-  do.call(file.remove, list(file.path(dir.harness, list.files(dir.harness, pattern = "*.csv", full.names = FALSE))))
+do.call(file.remove, list(file.path(dir.harness, list.files(dir.harness, pattern = "*.csv", full.names = FALSE))))
+
 #Set up parallel environment
+
 #Run Model in Parallel
-  library(snow, lib = file.path(root, "Rlibraries"))
-  library(deSolve, lib = file.path(root, "Rlibraries"))
-  library(optimx, lib = file.path(root, "Rlibraries"))
-  nCore<-Number.Cores
-  cl <- makeSOCKcluster(names = rep('localhost',nCore))
-  global.elements<-list("Exp.design","TechChangeMod","dir.harness","dede","lagderiv","lagvalue","optimx") # dede, lagderiv are functions od deSolve
-  clusterExport(cl,global.elements,envir=environment())
+nCore<-Number.Cores
+
+cl <- makeSOCKcluster(names = rep('localhost',nCore))
+
+global.elements<-list("Exp.design","TechChangeMod","dir.harness","dede","lagderiv","lagvalue","optimx") # dede, lagderiv are functions od deSolve
+
+clusterExport(cl,global.elements,envir=environment())
+ 
  #Execute code
   parApply(cl,Exp.design,1,function(x) {
-                                     params<-c(
-                                     S.0 = as.numeric(x['S.0']),
-                                     TimeStep = as.numeric(x['TimeStep']),
-                                     EndTime = as.numeric(x['EndTime']),
-                                     alfa = as.numeric(x['alfa']),
-                                     epsilon = as.numeric(x['epsilon']),
-                                     Gamma.re = as.numeric(x['Gamma.re']),
-                                     k.re = as.numeric(x['k.re']),
-                                     Gamma.ce = as.numeric(x['Gamma.ce']),
-                                     k.ce = as.numeric(x['k.ce']),
-                                     Eta.re = as.numeric(x['Eta.re']),
-                                     Eta.ce = as.numeric(x['Eta.ce']),
-                                     Nu.re = as.numeric(x['Nu.re']),
-                                     Nu.ce = as.numeric(x['Nu.ce']),
-                                     qsi = as.numeric(x['qsi']),
-                                     Delta.S = as.numeric(x['Delta.S']),
-						             Delta.Temp.Disaster = as.numeric(x['Delta.Temp.Disaster']),
-						             Beta.Delta.Temp = as.numeric(x['Beta.Delta.Temp']),
-						             CO2.base = as.numeric(x['CO2.base']),
-						             CO2.Disaster = as.numeric(x['CO2.Disaster']),
-                                     labor.growth_N = as.numeric(x['labor.growth_N']),
-						             labor.growth_S = as.numeric(x['labor.growth_S']),
-                                     lambda.S = as.numeric(x['lambda.S']),
-						             sigma.utility = as.numeric(x['sigma.utility']),
-						             rho = as.numeric(x['rho']),
-                                     Yre.0_N = as.numeric(x['Yre.0_N']),
-                                     Yce.0_N = as.numeric(x['Yce.0_N']),
-                                     Yre.0_S = as.numeric(x['Yre.0_S']),
-                                     Yce.0_S = as.numeric(x['Yce.0_S']),
-						             size.factor = as.numeric(x['size.factor']),
-						             Run.ID = as.numeric(x['Run.ID']),
-									 policy.name = as.character(x['policy.name']),
-						             dir.harness = dir.harness);
+                        params<-c(
+                        S.0 = as.numeric(x['S.0']),
+                        TimeStep = as.numeric(x['TimeStep']),
+                        EndTime = as.numeric(x['EndTime']),
+                        alfa = as.numeric(x['alfa']),
+                        epsilon = as.numeric(x['epsilon']),
+                        Gamma.re = as.numeric(x['Gamma.re']),
+                        k.re = as.numeric(x['k.re']),
+                        Gamma.ce = as.numeric(x['Gamma.ce']),
+                        k.ce = as.numeric(x['k.ce']),
+                        Eta.re = as.numeric(x['Eta.re']),
+                        Eta.ce = as.numeric(x['Eta.ce']),
+                        Nu.re = as.numeric(x['Nu.re']),
+                        Nu.ce = as.numeric(x['Nu.ce']),
+                        qsi = as.numeric(x['qsi']),
+                        Delta.S = as.numeric(x['Delta.S']),
+                        Delta.Temp.Disaster = as.numeric(x['Delta.Temp.Disaster']),
+                        Beta.Delta.Temp = as.numeric(x['Beta.Delta.Temp']),
+                        CO2.base = as.numeric(x['CO2.base']),
+                        CO2.Disaster = as.numeric(x['CO2.Disaster']),
+                        labor.growth_N = as.numeric(x['labor.growth_N']),
+                        labor.growth_S = as.numeric(x['labor.growth_S']),
+                        lambda.S = as.numeric(x['lambda.S']),
+                        sigma.utility = as.numeric(x['sigma.utility']),
+                        rho = as.numeric(x['rho']),
+                        Yre.0_N = as.numeric(x['Yre.0_N']),
+                        Yce.0_N = as.numeric(x['Yce.0_N']),
+                        Yre.0_S = as.numeric(x['Yre.0_S']),
+                        Yce.0_S = as.numeric(x['Yce.0_S']),
+                        size.factor = as.numeric(x['size.factor']),
+                        Run.ID = as.numeric(x['Run.ID']),
+                        policy.name = as.character(x['policy.name']),
+                        dir.harness = dir.harness);
 
 #Policy dimensions
+
 #tax north
  ceN.0<-ifelse(x['Climate.Model']%in%c("GFDL-ESM2G","GFDL-ESM2M")==TRUE,0.30,
         ifelse(as.numeric(x['epsilon'])<8,0.25,
@@ -153,38 +175,55 @@ if (x['policy.name']=="FWA")
    stopCluster(cl)
 
 
-
+rm(list=ls()) #clear workspace
 ## =====================================================================================================
 ## This section reads the output of simulations and reshapes into a format ready for scenario discovery
 ## =====================================================================================================
-  Number.Cores<-4
- #Define directory parameters
-dir.inputs <- file.path(root, "RDM Inputs")
-dir.harness <- file.path(root, "RDM Harness")
-dir.output <- file.path(root, "RDM Outputs")
+
+Number.Cores <- parallel::detectCores()
+
+#Define directory parameters
+root <- file.path(getwd(), "")
+dir.inputs <- file.path(root, "RDM Inputs//")
+dir.harness <- file.path(root, "RDM Harness//")
+dir.output <- file.path(root, "RDM Outputs//")
+
+experiment.version <- "Exp.design.csv"
 
 #create vector with file names
-  filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
+filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
+
 #source function to process harnessed output data
-  source(file.path(dir.inputs, "harness_processing.r"))
+source(file.path(dir.inputs, "harness_processing.r"))
+
 #run post-processing in parallel
-  nCore<-Number.Cores
-  cl <- makeSOCKcluster(names = rep('localhost',nCore))
-  global.elements<-list("dir.harness","process.prim.data","data.table")
-  clusterExport(cl,global.elements,envir=environment())
-  prim.data <- parLapply(cl, filenames, function(x) {
-    data.table(process.prim.data(x, dir.harness))
-  })
+nCore <- Number.Cores
+
+cl <- makeSOCKcluster(names = rep('localhost',nCore))
+global.elements<-list("dir.harness","process.prim.data","data.table")
+clusterExport(cl,global.elements,envir=environment())
+
+  prim.data <- parLapply(cl,filenames, function(x){data.table(process.prim.data(x,dir.harness))} )
   stopCluster(cl)
   prim.data<-rbindlist(prim.data)
+
 #merge data with experimental design
   experiment.version<-"Exp.design.csv"
-  prim.data<-merge.exp.design(dir.inputs,experiment.version,prim.data)
+  prim.data <- merge.exp.design(dir.inputs,experiment.version,prim.data)
+
+  table(prim.data$policy.name)
+
 #create future without action consumption
   prim.data.fwa<-subset(prim.data,prim.data$policy.name=="FWA")
-  prim.data.fwa<-prim.data.fwa[,c("Future.ID","Y.Total_N","Y.Total_S","Consumption.Total_N","Consumption.Total_S","Climate.Coef","CO2.GrowthRate","Delta.Temp.GrowthRate","Consumption.Total_N.300","Consumption.Total_S.300"),with=FALSE]
-  setnames( prim.data.fwa,c("Y.Total_N","Y.Total_S","Consumption.Total_N","Consumption.Total_S","Climate.Coef","CO2.GrowthRate","Delta.Temp.GrowthRate","Consumption.Total_N.300","Consumption.Total_S.300"),c("Y.Total_N.fwa","Y.Total_S.fwa","Consumption.Total_N.fwa","Consumption.Total_S.fwa","Climate.Coef.fwa","CO2.GrowthRate.fwa","Delta.Temp.GrowthRate.fwa","Consumption.Total_N.300.fwa","Consumption.Total_S.300.fwa"))
+  table(prim.data.fwa$policy.name)
+
+  prim.data.fwa <- prim.data.fwa[,c("Future.ID","Y.Total_N","Y.Total_S","Consumption.Total_N","Consumption.Total_S","Consumption.Total_N.300","Consumption.Total_S.300"),with=FALSE]
+  
+  setnames( prim.data.fwa,
+  c("Y.Total_N","Y.Total_S","Consumption.Total_N","Consumption.Total_S","Consumption.Total_N.300","Consumption.Total_S.300"),
+  c("Y.Total_N.fwa","Y.Total_S.fwa","Consumption.Total_N.fwa","Consumption.Total_S.fwa","Consumption.Total_N.300.fwa","Consumption.Total_S.300.fwa"))
   prim.data<-merge(prim.data,prim.data.fwa,by="Future.ID")
+
 #standarize relative values
   prim.data$Z.Relative.Gamma<-prim.data$Gamma.re/prim.data$Gamma.ce
   prim.data$Z.Relative.Gamma<-scale(prim.data$Z.Relative.Gamma, center=TRUE, scale=TRUE)
@@ -200,28 +239,29 @@ dir.output <- file.path(root, "RDM Outputs")
 ## =====================================================================================================
 ## This section reads the output of simulations and reshapes it into time series split by region,
 ## =====================================================================================================
-Number.Cores<-18
+Number.Cores <- parallel::detectCores()
 #Define directory parameters
- dir.inputs <- file.path(root, "RDM Inputs")
- dir.harness <- file.path(root, "RDM Harness")
- dir.output <- file.path(root, "RDM Outputs")
+root <- file.path(getwd(), "")
+dir.inputs <- file.path(root, "RDM Inputs//")
+dir.harness <- file.path(root, "RDM Harness//")
+dir.output <- file.path(root, "RDM Outputs//")
 
 #crate vector with file names
  experiment.version<-"Exp.design.csv"
- #experiment.version<-"Exp.design_with_control_runs.csv"
- #experiment.version<-"Exp.design_defense_seminar_extras.csv"
  filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
+
 #source function to process harnessed output data
   source(file.path(dir.inputs, "harness_processing.r"))
+
 #run post-processing in parallel
-  library(data.table, lib = file.path(root, "Rlibraries"))
-  library(snow, lib = file.path(root, "Rlibraries"))
   nCore<-Number.Cores
   cl <- makeSOCKcluster(names = rep('localhost',nCore))
   global.elements<-list("dir.inputs","experiment.version","dir.harness","process.harness.data")
   clusterExport(cl,global.elements,envir=environment())
+  
   modelruns <- parLapply(cl,filenames, function(x){process.harness.data(x,dir.inputs,experiment.version,dir.harness)} )
   stopCluster(cl)
   modelruns<-rbindlist(modelruns)
+
 #print time series for model
-  write.csv(modelruns, file.path(dir.output, "model.runs_7_09_2015.csv"), row.names = FALSE)
+  write.csv(modelruns, file.path(dir.output, "model.runs_fabian.csv"), row.names = FALSE)
