@@ -159,13 +159,10 @@ if (x['policy.name']=="FWA")
 ## =====================================================================================================
   Number.Cores<-4
  #Define directory parameters
-  dir.inputs <- file.path(root, "RDM Inputs")
-  dir.harness <- file.path(root, "RDM Harness")
-  dir.output <- file.path(root, "RDM Outputs")
- #load needed libraries
-  library(reshape2, lib = file.path(root, "Rlibraries"))
-  library(data.table, lib = file.path(root, "Rlibraries"))
-  library(snow, lib = file.path(root, "Rlibraries"))
+dir.inputs <- file.path(root, "RDM Inputs")
+dir.harness <- file.path(root, "RDM Harness")
+dir.output <- file.path(root, "RDM Outputs")
+
 #create vector with file names
   filenames <- list.files(dir.harness, pattern="*.csv", full.names = FALSE)
 #source function to process harnessed output data
