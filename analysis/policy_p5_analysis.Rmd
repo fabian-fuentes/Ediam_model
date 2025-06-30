@@ -1,0 +1,273 @@
+---
+title: "Can international cooperation save our climate? What the EDIAM model teaches us"
+author: "Fabian Fuentes"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: hide
+    theme: flatly
+    highlight: tango
+    css: |
+      body {
+        font-family: 'Georgia', serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .main-container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      h1, h2, h3 {
+        color: #2c3e50;
+        margin-top: 2em;
+      }
+      .author {
+        font-style: italic;
+        color: #7f8c8d;
+      }
+      .highlight-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+      }
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, 
+                      fig.width = 10, fig.height = 6, dpi = 300)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+library(scales)
+
+# Set custom theme for charts
+theme_blog <- function() {
+  theme_minimal(base_size = 12) +
+    theme(
+      plot.title = element_text(size = 16, face = "bold", margin = margin(b = 20)),
+      plot.subtitle = element_text(size = 12, color = "#666666", margin = margin(b = 15)),
+      legend.position = "bottom",
+      panel.grid.minor = element_blank(),
+      strip.text = element_text(face = "bold", size = 11)
+    )
+}
+```
+
+# The problem we all know (but few want to solve)
+
+Every year we hear the same promises at climate summits: "This is the decisive moment," "We have the technology," "We just need political will." And every year, emissions keep rising.
+
+**The uncomfortable truth**: We don't lack technology, we lack effective policy. Renewable energy is cheaper than ever, electric cars are on every corner, and even big oil companies talk about "energy transition." But we keep wasting precious time.
+
+What would happen if we actually implemented serious climate policy? One that combines global carbon taxes, smart subsidies, and real international cooperation? To answer this question, I turned to the EDIAM model.
+
+<div class="highlight-box">
+**What is EDIAM?** The Exploratory Dynamic Integrated Assessment Model is a tool that simulates thousands of possible futures, combining climate, technological, and economic uncertainty. Unlike other models that seek "the right answer," EDIAM explores which policies work even when we don't know exactly what will happen.
+</div>
+
+## Policy P5: more than good intentions
+
+For this analysis, I chose a specific strategy known as **P5**: a combination of three tools that, in theory, should work:
+
+1. **Harmonized carbon tax** across all regions of the world
+2. **Research and development subsidies** co-financed through the Green Climate Fund
+3. **Technology subsidies** strategically applied in advanced regions
+
+It sounds good on paper, but does it work in practice? Let's see what the simulation tells us.
+
+# The results: good news and bad news
+
+```{r load-data}
+# Load and prepare data
+df <- read_csv("../RDM Outputs/model.runs_fabian_P5.csv")
+
+# Filter scenarios of interest
+df_comp <- df %>%
+  filter(Run.ID %in% c(1, 3001, 3002, 3003), time <= 2200)
+```
+
+## Can we control the global thermometer?
+
+```{r plot-temperature, fig.cap="Global temperature evolution: with and without climate policy"}
+df_comp %>%
+  group_by(Run.ID, time) %>%
+  summarise(Delta.Temp = mean(Delta.Temp), .groups = "drop") %>%
+  ggplot(aes(x = time, y = Delta.Temp, color = factor(Run.ID))) +
+  geom_line(size = 1.5) +
+  geom_hline(yintercept = 2, linetype = "dashed", color = "#e74c3c", size = 1) +
+  geom_hline(yintercept = 1.5, linetype = "dotted", color = "#f39c12", size = 1) +
+  scale_color_manual(
+    values = c("1" = "#95a5a6", "3001" = "#27ae60", "3002" = "#f39c12", "3003" = "#3498db"),
+    labels = c(
+      "1" = "No policy (current world)",
+      "3001" = "P5 Moderate",
+      "3002" = "P5 Balanced", 
+      "3003" = "P5 Ambitious"
+    )
+  ) +
+  labs(
+    title = "Can we control global warming?",
+    subtitle = "Comparison between different levels of climate ambition",
+    x = "Year",
+    y = "Temperature increase (°C)",
+    color = "Scenario",
+    caption = "Red line: 2°C limit from Paris Agreement"
+  ) +
+  theme_blog() +
+  guides(color = guide_legend(title.position = "top"))
+```
+
+**The good news**: Policy P5 does work. While without climate action we would reach catastrophic warming of over 6°C, all three variants of P5 manage to control the global thermometer.
+
+**The bad news**: Only the most ambitious version (P5 Ambitious) actually comes close to the 2°C target of the Paris Agreement. The moderate and balanced versions, while much better than doing nothing, still leave us in dangerous territory.
+
+**What does this mean?** That lukewarm measures aren't enough. If we want real results, we need ambitious climate policy.
+
+## The great energy transformation
+
+```{r plot-energy, fig.cap="How does our energy system change?"}
+df_comp %>%
+  filter(time <= 2100) %>%
+  group_by(Run.ID, time) %>%
+  summarise(Yce = mean(Yce), Yre = mean(Yre), .groups = "drop") %>%
+  pivot_longer(cols = c(Yce, Yre), names_to = "Technology", values_to = "Production") %>%
+  mutate(Technology = recode(Technology, 
+                             "Yce" = "Fossil fuels", 
+                             "Yre" = "Clean energy")) %>%
+  ggplot(aes(x = time, y = Production, color = Technology)) +
+  geom_line(size = 1.3) +
+  facet_wrap(~Run.ID, labeller = labeller(Run.ID = c(
+    "1" = "No policy",
+    "3001" = "P5 Moderate",
+    "3002" = "P5 Balanced",
+    "3003" = "P5 Ambitious"
+  ))) +
+  scale_color_manual(values = c("Fossil fuels" = "#e74c3c", 
+                                "Clean energy" = "#27ae60")) +
+  labs(
+    title = "The energy transition in action",
+    subtitle = "How does the global energy mix change with each policy?",
+    x = "Year", 
+    y = "Energy production", 
+    color = "Energy type"
+  ) +
+  theme_blog()
+```
+
+This is where policy P5 really shines. While without climate action we would continue burning more and more fossil fuels, policy P5 manages to **completely reverse** the global energy trend.
+
+In the most ambitious scenario, clean energy surpasses fossil fuels before 2075. It's a radical change, but gradual and manageable. It's not the overnight transformation some fear, but it's fast enough to make a difference.
+
+## The human side: what happens to employment?
+
+```{r plot-employment, fig.cap="Impact on energy sector employment"}
+df_comp %>%
+  filter(Run.ID %in% c(3001, 3002, 3003), time <= 2100) %>%
+  group_by(Run.ID, time) %>%
+  summarise(Labor.ce = mean(Labor.ce), Labor.re = mean(Labor.re), .groups = "drop") %>%
+  pivot_longer(cols = c(Labor.ce, Labor.re), names_to = "Sector", values_to = "Employment") %>%
+  mutate(Sector = recode(Sector,
+                         "Labor.ce" = "Clean energy sector",
+                         "Labor.re" = "Fossil fuel sector")) %>%
+  ggplot(aes(x = time, y = Employment, color = Sector)) +
+  geom_line(size = 1.3) +
+  facet_wrap(~Run.ID, labeller = labeller(Run.ID = c(
+    "3001" = "P5 Moderate",
+    "3002" = "P5 Balanced",
+    "3003" = "P5 Ambitious"
+  ))) +
+  scale_color_manual(values = c("Clean energy sector" = "#27ae60",
+                                "Fossil fuel sector" = "#e74c3c")) +
+  labs(
+    title = "What happens to jobs?",
+    subtitle = "Employment evolution in the energy sector",
+    x = "Year", 
+    y = "Employment level", 
+    color = "Sector"
+  ) +
+  theme_blog()
+```
+
+**Here's a surprise**: Although clean energy production grows, employment in that sector decreases in the long term. Why? Because clean technologies become more efficient and require less labor.
+
+**Is this bad?** Not necessarily. It's the natural result of technological progress. The important thing is that this transition is fair and accompanied by job retraining policies.
+
+## The money factor: where's the business?
+
+```{r plot-profits, fig.cap="Profitability by sector and region"}
+df_comp %>%
+  filter(Run.ID %in% c(3001, 3002, 3003), time <= 2100) %>%
+  group_by(Run.ID, Region, time) %>%
+  summarise(Profits.ce = mean(Profits.ce), Profits.re = mean(Profits.re), .groups = "drop") %>%
+  pivot_longer(cols = c(Profits.ce, Profits.re), names_to = "Sector", values_to = "Profit") %>%
+  mutate(
+    Sector = recode(Sector,
+                    "Profits.ce" = "Fossil fuels",
+                    "Profits.re" = "Clean energy"),
+    Region = recode(Region,
+                    "N" = "Developed countries",
+                    "S" = "Developing countries"),
+    Run.ID = recode_factor(as.character(Run.ID),
+                           "3001" = "P5 Moderate",
+                           "3002" = "P5 Balanced",
+                           "3003" = "P5 Ambitious")
+  ) %>%
+  ggplot(aes(x = time, y = Profit, color = Sector)) +
+  geom_line(size = 1.3) +
+  facet_grid(Run.ID ~ Region) +
+  scale_color_manual(values = c("Fossil fuels" = "#e74c3c",
+                                "Clean energy" = "#27ae60")) +
+  labs(
+    title = "Follow the money: where's the business?",
+    subtitle = "Profitability of clean vs. fossil energy by region",
+    x = "Year", 
+    y = "Profits", 
+    color = "Sector"
+  ) +
+  scale_y_continuous(labels = comma_format()) +
+  theme_blog()
+```
+
+**Here's the key**: Policy P5 is not only good for the planet, it's good for business. In all regions and all scenarios, clean energy becomes much more profitable than fossil fuels.
+
+This is crucial because it means the energy transition doesn't require sacrificing profitability. On the contrary, creating the right conditions makes clean energy the most lucrative option.
+
+# The lessons we can't ignore
+
+## 1. Ambition matters (a lot)
+
+The results are clear: lukewarm measures give lukewarm results. Only the most ambitious version of P5 actually comes close to international climate targets.
+
+## 2. International cooperation works
+
+The combination of global carbon taxes, coordinated subsidies, and technology transfer can change the game. But it requires all countries to play seriously.
+
+## 3. The market can be our ally
+
+When we create the right conditions, market forces push toward sustainability. Policy P5 makes clean energy both profitable and sustainable.
+
+## 4. The transition will be gradual, not traumatic
+
+Changes take decades, not years. This gives the economy time to adapt, but it also means we need to start now.
+
+# What now?
+
+The EDIAM model results give us a clear answer: **yes, we can**. Ambitious climate policy, coordinated internationally, can keep global warming at manageable levels while generating economic prosperity.
+
+**But there's a but**: The results only materialize if we actually implement these policies. And that's where the hardest part comes in: political will.
+
+<div class="highlight-box">
+**Food for thought**: If we know the technology exists, that policies work, and that it's even profitable... what are we waiting for? Maybe the problem isn't technical, but narrative. We need more people to understand that climate action isn't a cost, it's an investment in our future.
+</div>
+
+---
+
+*What do you think? Do you believe it's possible to implement a policy like P5 in the real world? Or are we being too optimistic? Share your thoughts in the comments.*
+
+---
+
+**Methodological note**: This analysis is based on EDIAM model simulations. Like all models, it has limitations and assumptions. Results should be interpreted as possible scenarios, not exact predictions. For more details on the methodology, [check the complete code on my GitHub](https://github.com/fabian-fuentes/Ediam_model).

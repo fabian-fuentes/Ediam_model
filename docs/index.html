@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDIAM Model - Policy Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        .policy-badge {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-4">EDIAM Model</h1>
+                    <p class="lead mb-4">Endogenous Directed Innovation And Mitigation</p>
+                    <p class="mb-4">Análisis computacional para el estudio de desafíos de sostenibilidad: herramientas y métodos para tratar con la incertidumbre profunda y la complejidad.</p>
+                    <div class="d-flex gap-3">
+                        <a href="https://github.com/fabian-fuentes/Ediam_model" class="btn btn-light btn-lg">
+                            📁 Ver Repositorio
+                        </a>
+                        <a href="policy_p5_analysis.html" class="btn btn-outline-light btn-lg">
+                            📊 Ver Análisis P5
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <h2 class="h3 mb-4">Acerca del Modelo EDIAM</h2>
+                <p class="text-muted mb-4">
+                    Este repositorio contiene todos los scripts de soporte y conjuntos de datos necesarios para replicar 
+                    el análisis presentado en Edmundo Molina-Perez et al, (2020) sobre inteligencia computacional 
+                    para estudiar desafíos de sostenibilidad.
+                </p>
+
+                <h3 class="h4 mb-3">Scripts Principales</h3>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <h5 class="card-title">🌡️ ClimateCalibration.r</h5>
+                                <p class="card-text small">Método para determinar coeficientes climáticos del modelo usando datos raw de GCMs.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <h5 class="card-title">🏗️ Ediam_vFrontiers.r</h5>
+                                <p class="card-text small">Estructura matemática del modelo EDIAM y procesamiento del diseño experimental.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <h5 class="card-title">⚙️ Main_vFrontiers.r</h5>
+                                <p class="card-text small">Rutinas para diseño experimental, respuesta óptima de políticas y post-procesamiento.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 card-hover">
+                            <div class="card-body">
+                                <h5 class="card-title">🔍 sdprim_vFrontiers.r</h5>
+                                <p class="card-text small">Análisis con algoritmo PRIM (Patient Rule Induction Method).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="h4 mb-3">Análisis de Políticas</h3>
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title">Política P5: Instrumentos Combinados</h5>
+                            <span class="policy-badge">NUEVO</span>
+                        </div>
+                        <p class="card-text">
+                            Análisis detallado de la política P5 que combina tres instrumentos:
+                        </p>
+                        <ul class="list-unstyled">
+                            <li>🏷️ <strong>Carbon Tax armonizado</strong> en ambas regiones</li>
+                            <li>🤝 <strong>Co-R&D subsidies</strong> bajo el Green Climate Fund</li>
+                            <li>🚀 <strong>Technology subsidies</strong> independientes en región avanzada</li>
+                        </ul>
+                        <a href="policy_p5_analysis.html" class="btn btn-primary">
+                            Ver Análisis Completo →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">📊 Conjuntos de Datos</h5>
+                        <p class="card-text small">Los datos se pueden acceder a través de los siguientes enlaces:</p>
+                        
+                        <h6 class="mt-3 mb-2">Calibración Climática</h6>
+                        <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wb_krnz9SwRiFZ7g?e=fOp2gY" 
+                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
+                            AllGCMs.csv
+                        </a>
+                        
+                        <h6 class="mt-3 mb-2">Diseño Experimental</h6>
+                        <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wcph9J5LsRwp8dSw?e=qtVasC" 
+                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
+                            Exp.design + Políticas
+                        </a>
+                        
+                        <h6 class="mt-3 mb-2">Resultados Experimentales</h6>
+                        <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wduV1KXnkrI9ANng?e=ngW96L" 
+                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
+                            model.runs.csv + PRIM data
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">📄 Referencia</h5>
+                        <p class="card-text small">
+                            <strong>Molina-Perez, E. et al.</strong> (2020). 
+                            "Computational intelligence for studying sustainability challenges: 
+                            tools and methods for dealing with deep uncertainty and complexity"
+                        </p>
+                        <a href="https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2020.00111/full" 
+                           class="btn btn-sm btn-outline-secondary" target="_blank">
+                            Ver Paper →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 EDIAM Model Analysis</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">
+                        <a href="https://github.com/fabian-fuentes" class="text-light text-decoration-none">
+                            👨‍💻 Fabian Fuentes
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
