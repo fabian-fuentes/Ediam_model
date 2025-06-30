@@ -1,45 +1,199 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDIAM Model - Policy Analysis</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4rem 0;
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --secondary-gradient: linear-gradient(45deg, #ec4899, #8b5cf6);
+            --accent-gradient: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            --surface-dark: #1a1a1a;
+            --surface-light: #2d2d2d;
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
+
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+
+        .hero-section {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3), transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3), transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background-color: var(--surface-dark);
+            border: 1px solid #30363d;
             transition: all 0.3s ease;
         }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: #58a6ff;
+        }
+
         .policy-badge {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            background: var(--secondary-gradient);
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 20px;
+            border-radius: 25px;
             font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-outline-primary {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #58a6ff;
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+
+        .bg-light {
+            background-color: var(--surface-light) !important;
+        }
+
+        .script-card {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .script-card:nth-child(1) { border-left-color: #ff6b6b; }
+        .script-card:nth-child(2) { border-left-color: #4ecdc4; }
+        .script-card:nth-child(3) { border-left-color: #45b7d1; }
+        .script-card:nth-child(4) { border-left-color: #96ceb4; }
+
+        .data-link {
+            background: linear-gradient(45deg, #30363d, #21262d);
+            border: 1px solid #30363d;
+            transition: all 0.3s ease;
+        }
+
+        .data-link:hover {
+            background: linear-gradient(45deg, #58a6ff, #0969da);
+            transform: scale(1.02);
+        }
+
+        .section-title {
+            background: linear-gradient(90deg, #58a6ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #0d1117, #21262d) !important;
+            border-top: 1px solid #30363d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--surface-light);
+            border-radius: 15px;
+            border: 1px solid #30363d;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
     </style>
 </head>
 <body>
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="container">
+        <div class="container hero-content">
             <div class="row align-items-center">
                 <div class="col-lg-8">
                     <h1 class="display-4 fw-bold mb-4">EDIAM Model</h1>
                     <p class="lead mb-4">Endogenous Directed Innovation And Mitigation</p>
-                    <p class="mb-4">Análisis computacional para el estudio de desafíos de sostenibilidad: herramientas y métodos para tratar con la incertidumbre profunda y la complejidad.</p>
-                    <div class="d-flex gap-3">
+                    <p class="mb-4">Computational analysis for studying sustainability challenges: tools and methods for dealing with deep uncertainty and complexity.</p>
+                    <div class="d-flex gap-3 flex-wrap">
                         <a href="https://github.com/fabian-fuentes/Ediam_model" class="btn btn-light btn-lg">
-                            📁 Ver Repositorio
+                            <i class="fas fa-code-branch"></i> 📁 View Repository
                         </a>
                         <a href="policy_p5_analysis.html" class="btn btn-outline-light btn-lg">
-                            📊 Ver Análisis P5
+                            📊 View P5 Analysis
                         </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">4</div>
+                            <div class="text-muted">R Scripts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">9</div>
+                            <div class="text-muted">Policies</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -50,109 +204,131 @@
     <div class="container my-5">
         <div class="row">
             <div class="col-lg-8">
-                <h2 class="h3 mb-4">Acerca del Modelo EDIAM</h2>
+                <h2 class="section-title mb-4">About the EDIAM Model</h2>
                 <p class="text-muted mb-4">
-                    Este repositorio contiene todos los scripts de soporte y conjuntos de datos necesarios para replicar 
-                    el análisis presentado en Edmundo Molina-Perez et al, (2020) sobre inteligencia computacional 
-                    para estudiar desafíos de sostenibilidad.
+                    This repository contains all supporting scripts and datasets required for replicating 
+                    the analysis presented in <strong>Edmundo Molina-Perez et al, (2020)</strong> on computational intelligence 
+                    for studying sustainability challenges.
                 </p>
 
-                <h3 class="h4 mb-3">Scripts Principales</h3>
-                <div class="row g-3 mb-4">
+                <h3 class="h4 mb-4 section-title">Main Scripts</h3>
+                <div class="row g-3 mb-5">
                     <div class="col-md-6">
-                        <div class="card h-100 card-hover">
+                        <div class="card h-100 card-hover script-card">
                             <div class="card-body">
                                 <h5 class="card-title">🌡️ ClimateCalibration.r</h5>
-                                <p class="card-text small">Método para determinar coeficientes climáticos del modelo usando datos raw de GCMs.</p>
+                                <p class="card-text small text-muted">Method for determining model's climate coefficients using GCMs raw data.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card h-100 card-hover">
+                        <div class="card h-100 card-hover script-card">
                             <div class="card-body">
                                 <h5 class="card-title">🏗️ Ediam_vFrontiers.r</h5>
-                                <p class="card-text small">Estructura matemática del modelo EDIAM y procesamiento del diseño experimental.</p>
+                                <p class="card-text small text-muted">Mathematical structure of EDIAM model and experimental design processing.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card h-100 card-hover">
+                        <div class="card h-100 card-hover script-card">
                             <div class="card-body">
                                 <h5 class="card-title">⚙️ Main_vFrontiers.r</h5>
-                                <p class="card-text small">Rutinas para diseño experimental, respuesta óptima de políticas y post-procesamiento.</p>
+                                <p class="card-text small text-muted">Routines for experimental design, optimal policy response, and post-processing.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card h-100 card-hover">
+                        <div class="card h-100 card-hover script-card">
                             <div class="card-body">
                                 <h5 class="card-title">🔍 sdprim_vFrontiers.r</h5>
-                                <p class="card-text small">Análisis con algoritmo PRIM (Patient Rule Induction Method).</p>
+                                <p class="card-text small text-muted">Analysis using PRIM (Patient Rule Induction Method) algorithm.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <h3 class="h4 mb-3">Análisis de Políticas</h3>
-                <div class="card border-primary">
+                <h3 class="section-title mb-4">Policy Analysis</h3>
+                <div class="card border-primary mb-4">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h5 class="card-title">Política P5: Instrumentos Combinados</h5>
-                            <span class="policy-badge">NUEVO</span>
+                            <h5 class="card-title text-white">Policy P5: Combined Instruments</h5>
+                            <span class="policy-badge">FEATURED</span>
                         </div>
-                        <p class="card-text">
-                            Análisis detallado de la política P5 que combina tres instrumentos:
+                        <p class="card-text text-muted">
+                            Detailed analysis of policy P5 that combines three strategic instruments:
                         </p>
-                        <ul class="list-unstyled">
-                            <li>🏷️ <strong>Carbon Tax armonizado</strong> en ambas regiones</li>
-                            <li>🤝 <strong>Co-R&D subsidies</strong> bajo el Green Climate Fund</li>
-                            <li>🚀 <strong>Technology subsidies</strong> independientes en región avanzada</li>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2">🏷️ <strong class="text-warning">Harmonized Carbon Tax</strong> across both regions</li>
+                            <li class="mb-2">🤝 <strong class="text-success">Co-R&D subsidies</strong> under the Green Climate Fund</li>
+                            <li class="mb-2">🚀 <strong class="text-info">Technology subsidies</strong> independent in advanced region</li>
                         </ul>
                         <a href="policy_p5_analysis.html" class="btn btn-primary">
-                            Ver Análisis Completo →
+                            View Complete Analysis →
                         </a>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card bg-light">
+                <div class="card bg-light mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">📊 Conjuntos de Datos</h5>
-                        <p class="card-text small">Los datos se pueden acceder a través de los siguientes enlaces:</p>
+                        <h5 class="card-title section-title">📊 Datasets</h5>
+                        <p class="card-text small text-muted">Access the data through the following links:</p>
                         
-                        <h6 class="mt-3 mb-2">Calibración Climática</h6>
+                        <h6 class="mt-4 mb-3 text-warning">🌡️ Climate Calibration</h6>
                         <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wb_krnz9SwRiFZ7g?e=fOp2gY" 
-                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
-                            AllGCMs.csv
+                           class="btn btn-sm data-link mb-2 d-block text-white" target="_blank">
+                            📈 AllGCMs.csv
                         </a>
                         
-                        <h6 class="mt-3 mb-2">Diseño Experimental</h6>
+                        <h6 class="mt-4 mb-3 text-success">🔬 Experimental Design</h6>
                         <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wcph9J5LsRwp8dSw?e=qtVasC" 
-                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
-                            Exp.design + Políticas
+                           class="btn btn-sm data-link mb-2 d-block text-white" target="_blank">
+                            📋 Experimental Designs (P0-P8)
                         </a>
+                        <div class="small text-muted mt-2 mb-3">
+                            <strong>Includes:</strong> Exp.design.csv, designs P0-P8, Climate.csv, Limits_original.csv, Policies.csv
+                        </div>
                         
-                        <h6 class="mt-3 mb-2">Resultados Experimentales</h6>
+                        <h6 class="mt-4 mb-3 text-info">📊 Experimental Results</h6>
                         <a href="https://1drv.ms/u/s!AqjkGBjI6COCg7wduV1KXnkrI9ANng?e=ngW96L" 
-                           class="btn btn-sm btn-outline-primary mb-2 d-block" target="_blank">
-                            model.runs.csv + PRIM data
+                           class="btn btn-sm data-link mb-2 d-block text-white" target="_blank">
+                            🎯 Results + PRIM Analysis
+                        </a>
+                        <div class="small text-muted mt-2">
+                            <strong>Includes:</strong> model.runs.csv, prim.data.csv, robust_mapping.csv
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title section-title">📄 Academic Reference</h5>
+                        <div class="bg-dark p-3 rounded mb-3">
+                            <p class="card-text small mb-2">
+                                <strong class="text-warning">Molina-Perez, E. et al.</strong> (2020)
+                            </p>
+                            <p class="small text-muted mb-0">
+                                "Computational intelligence for studying sustainability challenges: 
+                                tools and methods for dealing with deep uncertainty and complexity"
+                            </p>
+                        </div>
+                        <a href="https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2020.00111/full" 
+                           class="btn btn-outline-primary btn-sm w-100" target="_blank">
+                            📖 Read Full Paper →
                         </a>
                     </div>
                 </div>
 
                 <div class="card mt-4">
-                    <div class="card-body">
-                        <h5 class="card-title">📄 Referencia</h5>
-                        <p class="card-text small">
-                            <strong>Molina-Perez, E. et al.</strong> (2020). 
-                            "Computational intelligence for studying sustainability challenges: 
-                            tools and methods for dealing with deep uncertainty and complexity"
-                        </p>
-                        <a href="https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2020.00111/full" 
-                           class="btn btn-sm btn-outline-secondary" target="_blank">
-                            Ver Paper →
-                        </a>
+                    <div class="card-body text-center">
+                        <h5 class="card-title section-title">🔧 Technologies</h5>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap mt-3">
+                            <span class="badge bg-primary fs-6">R</span>
+                            <span class="badge bg-success fs-6">PRIM</span>
+                            <span class="badge bg-warning fs-6">GCMs</span>
+                            <span class="badge bg-info fs-6">Policy Analysis</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,23 +336,29 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="py-5 mt-5">
         <div class="container">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 EDIAM Model Analysis</p>
+                    <h5 class="section-title mb-2">EDIAM Model</h5>
+                    <p class="text-muted mb-0">&copy; 2025 Sustainability Challenge Analysis</p>
                 </div>
-                <div class="col-md-6 text-end">
-                    <p class="mb-0">
-                        <a href="https://github.com/fabian-fuentes" class="text-light text-decoration-none">
-                            👨‍💻 Fabian Fuentes
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-2">
+                        <a href="https://github.com/fabian-fuentes" class="text-decoration-none">
+                            <span class="badge bg-dark fs-6">👨‍💻 Fabian Fuentes</span>
                         </a>
                     </p>
+                    <div class="small text-muted">
+                        <a href="mailto:cffuentes@tec.mx" class="text-decoration-none text-info">
+                            📧 cffuentes@tec.mx
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
