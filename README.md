@@ -14,7 +14,7 @@ This repository contains scripts, data, and analyses for running the EDIAM model
 - `analysis/` – R Markdown notebooks for scenario discovery and policy analysis, including
   `policy_p5_analysis.Rmd` which generates the policy P5 report.
 - `auto/` – GitHub Pages output containing the generated reports:
-  [`index.html`]([auto/index.html](https://fabian-fuentes.github.io/Ediam_model/)) and [`policy_p5_analysis.html`]([auto/policy_p5_analysis.html](https://fabian-fuentes.github.io/Ediam_model/policy_p5_analysis.html)).
+  [`index.html`](https://fabian-fuentes.github.io/Ediam_model/) and [`policy_p5_analysis.html`](https://fabian-fuentes.github.io/Ediam_model/policy_p5_analysis.html).
 - `docs/` – rendered HTML reports.
 
 The repository previously referenced scripts such as `ClimateCalibration.r` and `Ediam_vFrontiers.r`. These have been refactored into the files under `Main/` and `analysis/`.
